@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '0.01';
 
-use base qw(Finance::BitStamp::DefaultPackage);
+use base qw(Finance::BitStamp::API::DefaultPackage);
 
 use constant DEBUG => 0;
 
