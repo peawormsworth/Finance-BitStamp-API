@@ -7,7 +7,6 @@ use lib qw(.);
 
 use Test::More;
 
-#use BitStamp::Processor;
 use Data::Dumper;
 use JSON;
 
