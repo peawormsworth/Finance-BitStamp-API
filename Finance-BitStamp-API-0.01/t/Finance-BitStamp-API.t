@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use lib qw(.);
 
-use Test::More;
+use Test::More tests => 15;
 
 use Data::Dumper;
 use JSON;
@@ -41,12 +41,73 @@ use constant TEST_PENDING_DEPOSITS => 1;
 # use constant TEST_BITCOINwITHDRAWAL => 0;
 # use constant TEST_RIPPLEwITHDRAWAL  => 0;
 
+use constant PUBLIC_TESTS => [
+    {
+        name   => 'Ticker',
+        method => 'ticker',
+        active => TEST_TICKER,
+    },
+    {
+        name   => 'OrederBook',
+        method => 'orderbook',
+        active => TEST_ORDERBOOK,
+    },
+    {
+        name   => 'Public Transactions',
+        method => 'public_transactions',
+        active => TEST_PUB_TRANSACTIONS,
+    },
+    {
+        name   => 'Conversion Rate',
+        method => 'conversion_rate',
+        active => TEST_CONVERSION_RATE,
+    },
+];
+
+use constant PRIVATE_TESTS => [
+    {
+        name   => 'Balance',
+        method => 'balance',
+        active => TEST_BALANCE,
+    },
+    {
+        name   => 'Transactions',
+        method => 'transactions',
+        active => TEST_TRANSACTIONS,
+    },
+    {
+        name   => 'Withdrawals',
+        method => 'withdrawals',
+        active => TEST_WITHDRAWALS,
+    },
+    {
+        name   => 'Ripple Address',
+        method => 'ripple_address',
+        active => TEST_RIPPLE_ADDRESS,
+    },
+    {
+        name   => 'Bitcoin Address',
+        method => 'bitcoin_address',
+        active => TEST_BITCOIN_ADDRESS,
+    },
+    {
+        name   => 'Orders',
+        method => 'orders',
+        active => TEST_ORDERS,
+    },
+    {
+        name   => 'Pending Deposits',
+        method => 'pending_deposits',
+        active => TEST_PENDING_DEPOSITS,
+    },
+];
+
 BEGIN { use_ok(PACKAGE) };
 
 main->new->go;
 
 sub new         { bless {} => shift }
-sub json        { shift->{json}      || JSON->new }
+sub json        { shift->{json} || JSON->new }
 sub bitstamp    { get_set(@_) }
 sub set_public  { shift->bitstamp(Finance::BitStamp::API->new) }
 sub set_private { shift->bitstamp(Finance::BitStamp::API->new(key => KEY, secret => SECRET, client_id => CLIENT_ID)) }
@@ -54,80 +115,33 @@ sub set_private { shift->bitstamp(Finance::BitStamp::API->new(key => KEY, secret
 sub go  {
     my $self = shift;
 
-    $self->test_count(1);
-
     can_ok(PACKAGE, qw(new));
-    $self->inc_tests;
 
     say '=== Begin PUBLIC tests' if DEBUG;
     isa_ok($self->set_public, PACKAGE);
-    $self->inc_tests;
 
-    if (TEST_TICKER) {
-        $self->ticker($self->bitstamp->ticker);
-        ok($self->ticker, 'Ticker');
-        $self->inc_tests;
+    foreach my $test (@{PUBLIC_TESTS()}) {
+        SKIP: {
+            my ($name, $method, $active) = @{$test}{qw(name method active)};
+            skip $name . ' test turned OFF', 1 unless $active;
+            $self->$method($self->bitstamp->$method);
+            ok($self->$method, $name);
+            print Data::Dumper->Dump([$self->$method],[$name]) if DEBUG;
+        }
     }
 
-    if (TEST_ORDERBOOK) {
-        $self->orderbook($self->bitstamp->orderbook);
-        ok($self->orderbook, 'Orderbook');
-        $self->inc_tests;
-    }
-
-    if (TEST_PUB_TRANSACTIONS) {
-        $self->public_transactions($self->bitstamp->public_transactions);
-        ok($self->public_transactions, 'Public Transactions');
-        $self->inc_tests;
-    }
-
-    if (TEST_CONVERSION_RATE) {
-        $self->conversion_rate($self->bitstamp->conversion_rate);
-        ok($self->conversion_rate, 'Conversion Rate');
-        $self->inc_tests;
-    }
-    say '=== Done PUBLIC tests' if DEBUG;
-
-    say '=== Begin PRIVATE tests' if DEBUG;
+    say '=== End PUBLIC tests' if DEBUG;
     isa_ok($self->set_private, PACKAGE);
-    $self->inc_tests;
 
-    if (TEST_BALANCE) {
-        $self->balance($self->bitstamp->balance);
-        ok($self->balance, 'Balance');
-        $self->inc_tests;
+    foreach my $test (@{PRIVATE_TESTS()}) {
+        SKIP: {
+            my ($name, $method, $active) = @{$test}{qw(name method active)};
+            skip $name . ' test turned OFF', 1 unless $active;
+            $self->$method($self->bitstamp->$method);
+            ok($self->$method, $name);
+            print Data::Dumper->Dump([$self->$method],[$name]) if DEBUG;
+        }
     }
-    if (TEST_TRANSACTIONS) {
-        $self->transactions($self->bitstamp->transactions);
-        ok($self->transactions, 'Transactions');
-        $self->inc_tests;
-    }
-    if (TEST_WITHDRAWALS) {
-        $self->withdrawals($self->bitstamp->withdrawals);
-        ok($self->withdrawals, 'Withdrawals');
-        $self->inc_tests;
-    }
-    if (TEST_RIPPLE_ADDRESS) {
-        $self->ripple_address($self->bitstamp->ripple_address);
-        ok($self->ripple_address, 'Ripple Address');
-        $self->inc_tests;
-    }
-    if (TEST_BITCOIN_ADDRESS) {
-        $self->bitcoin_address($self->bitstamp->bitcoin_address);
-        ok($self->bitcoin_address, 'Bitcoin Address');
-        $self->inc_tests;
-    }
-    if (TEST_ORDERS) {
-        $self->orders($self->bitstamp->orders);
-        ok($self->orders, 'Orders');
-        $self->inc_tests;
-    }
-    if (TEST_PENDING_DEPOSITS) {
-        $self->pending_deposits($self->bitstamp->pending_deposits);
-        ok($self->pending_deposits, 'Pending Deposits');
-        $self->inc_tests;
-    }
-    say '=== Done PRIVATE tests' if DEBUG;
 }
 
 sub ticker              { get_set(@_) }
@@ -141,23 +155,12 @@ sub ripple_address      { get_set(@_) }
 sub bitcoin_address     { get_set(@_) }
 sub orders              { get_set(@_) }
 sub pending_deposits    { get_set(@_) }
-sub test_count          { get_set(@_) }
-
-sub inc_tests {
-    my $self = shift;
-    return $self->test_count($self->test_count + 1);
-}
 
 sub get_set {
     my $self      = shift;
     my $attribute = ((caller(1))[3] =~ /::(\w+)$/)[0];
     $self->{$attribute} = shift if scalar @_;
     return $self->{$attribute};
-}
-
-sub DESTROY {
-    my $self = shift;
-    done_testing($self->test_count || 0);
 }
 
 

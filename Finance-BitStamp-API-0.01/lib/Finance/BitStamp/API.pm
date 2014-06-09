@@ -323,13 +323,125 @@ The return value will be undefined when an error occurs...
 
 =head2 new()
 
+    my $bitstamp = Finance::BitStamp::API->new(key => $key, secret => $secret, client_id => $client_id);
+
 Create a new Finance::BitStamp::API object.
+key, secret and client_id are required.
+These values are provided by Bitstamp through their online administration interface.
 
-=head2 etc()
 
-etc
+=head2 ticker()
+
+    my $ticker = $bitstamp->ticker;
+
+Send a TICKER request to BitStamp.
+
+Returns a hash reference of the ticker like this:
+
+    $OrederBook = {
+        asks => [
+            [
+                '645.71',
+                '0.22100000'
+            ],
+            [
+                '645.88',
+                '20.00000000'
+            ],
+        ],
+        bids => [
+            [
+                '2.00',
+                '598.30000000'
+            ],
+            [
+                '1.45',
+                '500.00000000'
+            ],
+        ],
+        timestamp => '1402308355'
+    };
+
+=head2 orderbook()
+
+    my $orderbook = $bitstamp->orderbook;
+
+=head2 public_transactions()
+
+    my $public_transaction = $bitstamp->public_transaction;
+
+
+=head2 conversion_rate()
+
+    my $conversion_rate = $bitstamp->conversion_rate;
+
+
+=head2 balance()
+
+    my $balance = $bitstamp->balance;
+
+
+=head2 transactions()
+
+    my $transactions = $bitstamp->transactions;
+
+
+=head2 withdrawals()
+
+    my $withdrawals = $bitstamp->withdrawals;
+
+
+=head2 ripple_address()
+
+    my $ripple_address = $bitstamp->ripple_address;
+
+
+=head2 bitcoin_address()
+
+    my $bitcoin_address = $bitstamp->bitcoin_address;
+
+
+=head2 orders()
+
+    my $orders = $bitstamp->orders;
+
+
+=head2 cancel()
+
+    my $cancel = $bitstamp->cancel;
+
+
+=head2 buy()
+
+    my $buy = $bitstamp->buy;
+
+
+=head2 sell()
+
+    my $sell = $bitstamp->sell;
+
+
+=head2 bitcoin_withdrawal()
+
+    my $bitcoin_withdrawal = $bitstamp->bitcoin_withdrawal;
+
+
+=head2 pending_deposits()
+
+    my $pending_deposits = $bitstamp->pending_deposits;
+
+
+=head2 ripple_withdrawal()
+
+    my $ripple_withdrawal = $bitstamp->ripple_withdrawal;
+
 
 =head1 ATTRIBUTES
+
+=head2 key(), secret(), client()
+
+These are usually set during object instantiation. But you can set and retrieve them through these attributes.
+The last set values will always be used in the next action request. These values are obtained from BitStamp through your account.
 
 =head2 is_ready()
 
@@ -339,7 +451,22 @@ Will return false if:
 - the request object requires authentication and no key is provided
 - the request object does not have the manditory parameters set that BitStamp requires for that request.
 
-=head2
+=head2 error()
+
+If the request did not work, error() will contain a hash representing the problem. The hash contains the keys: 'type' and 'message'. These are strings. ie:
+
+    print "The error type was: " . $bitstamp->error->{type};
+    print "The error message was: " . $bitstamp->error->{message};
+
+=head2 user_agent()
+
+This will contain the user agent of the last request to BitStamp.
+Through this object, you may access both the HTTP Request and Response.
+This will allow you to do detailed inspection of exactly what was sent and the raw BitPay response.
+
+=head2 request()
+
+This will contain the Request object of the last action called on the object. It is not a HTTP Request, but rather a config file for the request URL, params and other requirements for each post to bitstamp. You will find these modules using the naming Finance::BitStamp::API::Request::*
 
 =head1 HOWTO DETECT ERRORS
 
@@ -359,7 +486,7 @@ In these cases we are allowing BitStamp to decide what is and is not valid input
 If the input values are invalid, we expect BitStamp to provide an appropriate response and that is the message we will return to the caller (through $bitstamp->error).
 
 This module does not validate the response from BitStamp.
-In general it will return success when any json response is provided by Bitpay without the 'error' key.
+In general it will return success when any json response is provided by Bitstamp without the 'error' key.
 The SSL certificate is verified automatically by LWP, so the response you will get is very likely from BitStamp itself.
 If there is an 'error' key in the json response, then that error is put into the $bitstamp->error attribute.
 If there is an 'error' parsing the response from BitStamp, then the decoding error from json is in the $bitstamp->error attribute.
@@ -367,7 +494,7 @@ If there is a network error (not 200), then the error code and $response->error 
 
 =head1 SEE ALSO
 
-The BitStamp API documentation: 
+The BitStamp API documentation: https://www.bitstamp.net/api/
 This project on Github: https://github.com/peawormsworth/Finance-BitStamp-API
 
 =head1 AUTHOR
