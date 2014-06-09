@@ -223,7 +223,7 @@ sub pending_deposits    { _class_action(@_) }
 sub ripple_withdrawal   { _class_action(@_) }
 
 sub key           { my $self = shift; $self->get_set(@_) }
-sub ecret        { my $self = shift; $self->get_set(@_) }
+sub secret        { my $self = shift; $self->get_set(@_) }
 sub client_id     { my $self = shift; $self->get_set(@_) }
 sub error         { my $self = shift; $self->get_set(@_) }
 sub http_response { my $self = shift; $self->get_set(@_) }
