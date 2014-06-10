@@ -52,11 +52,6 @@ use constant PUBLIC_TESTS => [
         method => 'orderbook',
         active => TEST_ORDERBOOK,
     },
-    #{
-        #name   => 'Public Transactions',
-        #method => 'public_transactions',
-        #active => TEST_PUB_TRANSACTIONS,
-    #},
     {
         name   => 'Transactions',
         method => 'public_transactions',
