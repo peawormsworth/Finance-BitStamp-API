@@ -52,8 +52,13 @@ use constant PUBLIC_TESTS => [
         method => 'orderbook',
         active => TEST_ORDERBOOK,
     },
+    #{
+        #name   => 'Public Transactions',
+        #method => 'public_transactions',
+        #active => TEST_PUB_TRANSACTIONS,
+    #},
     {
-        name   => 'Public Transactions',
+        name   => 'Transactions',
         method => 'public_transactions',
         active => TEST_PUB_TRANSACTIONS,
     },
@@ -107,7 +112,7 @@ BEGIN { use_ok(PACKAGE) };
 main->new->go;
 
 sub new         { bless {} => shift }
-sub json        { shift->{json} || JSON->new }
+sub json        { shift->{json}      || JSON->new }
 sub bitstamp    { get_set(@_) }
 sub set_public  { shift->bitstamp(Finance::BitStamp::API->new) }
 sub set_private { shift->bitstamp(Finance::BitStamp::API->new(key => KEY, secret => SECRET, client_id => CLIENT_ID)) }
@@ -119,29 +124,29 @@ sub go  {
 
     say '=== Begin PUBLIC tests' if DEBUG;
     isa_ok($self->set_public, PACKAGE);
-
     foreach my $test (@{PUBLIC_TESTS()}) {
         SKIP: {
             my ($name, $method, $active) = @{$test}{qw(name method active)};
             skip $name . ' test turned OFF', 1 unless $active;
             $self->$method($self->bitstamp->$method);
-            ok($self->$method, $name);
+            ok($self->$method, 'request public ' . $name);
             print Data::Dumper->Dump([$self->$method],[$name]) if DEBUG;
         }
     }
-
     say '=== End PUBLIC tests' if DEBUG;
-    isa_ok($self->set_private, PACKAGE);
 
+    say '=== Begin PRIVATE tests' if DEBUG;
+    isa_ok($self->set_private, PACKAGE);
     foreach my $test (@{PRIVATE_TESTS()}) {
         SKIP: {
             my ($name, $method, $active) = @{$test}{qw(name method active)};
             skip $name . ' test turned OFF', 1 unless $active;
             $self->$method($self->bitstamp->$method);
-            ok($self->$method, $name);
+            ok($self->$method, 'request private ' . $name);
             print Data::Dumper->Dump([$self->$method],[$name]) if DEBUG;
         }
     }
+    say '=== End PRIVATE tests' if DEBUG;
 }
 
 sub ticker              { get_set(@_) }
@@ -162,7 +167,6 @@ sub get_set {
     $self->{$attribute} = shift if scalar @_;
     return $self->{$attribute};
 }
-
 
 1;
 
